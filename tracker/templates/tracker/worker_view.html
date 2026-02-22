@@ -28,10 +28,10 @@
         {% endfor %}
       </select>
 
-      <label for="title">Title</label>
+      <label for="title">Название</label>
       <input type="text" id="title" name="title" maxlength="200" value="{% if task %}{{ task.title }}{% endif %}" />
 
-      <label for="desc">Description</label>
+      <label for="desc">Описание</label>
       <textarea id="desc" name="desc" maxlength="1000" rows="4">{% if task %}{{ task.desc }}{% endif %}</textarea>
     </fieldset>
   </form>
