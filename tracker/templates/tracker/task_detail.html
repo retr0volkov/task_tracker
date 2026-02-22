@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Details</title>
+</head>
+<body>
+    {% if task %}
+        <h1>Task Details</h1>
+        
+        <div>
+            <p><strong>Title:</strong> {{ task.title }}</p>
+            <p><strong>Description:</strong> {{ task.desc }}</p>
+            <p><strong>Status:</strong> {{ task.status }}</p>
+            <p><strong>Receiver:</strong> {{ task.receiver }}</p>
+            <p><strong>Created Date:</strong> {{ task.pub_date }}</p>
+            <p><strong>Due Date:</strong> {{ task.due_date }}</p>
+        </div>
+        
+        <div>
+            <a href="">Edit</a> | 
+            <a href="#">Delete</a> | 
+            <a href="{% url 'tracker:index' %}">Back to List</a>
+        </div>
+    {% else %}
+        <p>No task found.</p>
+        <a href="{% url 'tracker:index' %}">Return to Task List</a>
+    {% endif %}
+</body>
+</html>
