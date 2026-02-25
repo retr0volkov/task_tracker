@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+      }
+      body > div {
+        padding: 2rem;
+      }
+      .top {
+        width: 100%;
+        padding: 1rem;
+        background-color: #ddf;
+        font-size: 1.5rem;
+        line-height: 1.75rem;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+      .item {
+        border-radius: 1rem;
+        border-width: 2px;
+        border-color: #111;
+        background-color: #ddd;
+      }
+      .worker {
+        margin: 0;
+        padding: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+      }
+      .worker > p {
+        margin: 0;
+        font-weight: 600;
+      }
+      .form {
+        border-radius: 1rem;
+        background-color: #ddf;
+        width: 20rem;
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        padding-top: 0.5rem;
+        padding-bottom: 1rem;
+      }
+      fieldset {
+        border: 0;
+        width: auto;
+      }
+      .form-group {
+        display: flex;
+        justify-content: space-between;
+      }
+      .form-required {
+        color: #f44;
+        font-weight: 600;
+      }
+      .form-submit {
+        display: block;
+        width: 50%;
+        height: 2rem;
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+        margin-right: auto;
+        margin-left: auto;
+      }
+      .form-textarea-label {
+        align-self: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="top">
+      <div style="display: inline-flex;">
+        <a href="{% url 'tracker:task-list' %}">Список всех задач</a>
+      </div>
+    </header>
+    <div class="grid">
+      {% if workers %}
+        {% for worker in workers %}
+          <div class="item">
+            <div class="worker">
+              <p>
+                &#128119;<a href="{% url 'tracker:worker-detail' worker.id %}">{{ worker }}</a>
+              </p>
+              <form action="{% url 'tracker:delete-worker' worker.id %}">
+                <input type="submit" value="&#10060" />
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+      <form class="item form" action="{% url 'tracker:new-worker' %}" method="post">
+        {% csrf_token %}
+        <fieldset>
+          <div class="form-text form-group field-title">
+            <label for="title" class="form-text-label">Имя<span class="form-required">*</span></label>
+            <input type="text" class="form-control" value="{{ task.title }}" name="title" access="false" maxlength="200" id="title" required="required" aria-required="true" />
+          </div>
+        </fieldset>
+        <input class="form-submit" type="submit" value="Добавить" />
+      </form>
+    </div>
+  </body>
+</html>

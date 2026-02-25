@@ -1,29 +1,88 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Task Details</title>
-</head>
-<body>
+  <head>
+    <style>
+      body {
+        padding: 2rem;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+      }
+      .form {
+        border-radius: 1rem;
+        background-color: #ddf;
+        width: 20rem;
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        padding-top: 0.5rem;
+        padding-bottom: 1rem;
+      }
+      fieldset {
+        border: 0;
+        width: auto;
+      }
+      .form-group {
+        display: flex;
+        justify-content: space-between;
+      }
+      .form-required {
+        color: #f44;
+        font-weight: 600;
+      }
+      .form-submit {
+        display: block;
+        width: 50%;
+        height: 2rem;
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+        margin-right: auto;
+        margin-left: auto;
+      }
+      .form-textarea-label{
+        align-self: center;
+      }
+    </style>
+  </head>
+
+  <body>
     {% if task %}
-        <h1>Task Details</h1>
-        
-        <div>
-            <p><strong>Title:</strong> {{ task.title }}</p>
-            <p><strong>Description:</strong> {{ task.desc }}</p>
-            <p><strong>Status:</strong> {{ task.status }}</p>
-            <p><strong>Receiver:</strong> {{ task.receiver }}</p>
-            <p><strong>Created Date:</strong> {{ task.pub_date }}</p>
-            <p><strong>Due Date:</strong> {{ task.due_date }}</p>
-        </div>
-        
-        <div>
-            <a href="">Edit</a> | 
-            <a href="#">Delete</a> | 
-            <a href="{% url 'tracker:index' %}">Back to List</a>
-        </div>
-    {% else %}
-        <p>No task found.</p>
-        <a href="{% url 'tracker:index' %}">Return to Task List</a>
+      <form action="{% url 'tracker:edit-task' task.id %}" class="form" method="post">
+        {% csrf_token %}
+        <fieldset class="fieldset">
+          <div class="form-text form-group field-title">
+            <label for="title" class="form-text-label">Название<span class="form-required">*</span></label>
+            <input type="text" class="form-control" value="{{ task.title }}" name="title" access="false" maxlength="200" id="title" required="required" aria-required="true" />
+          </div>
+          <hr style="width: 90%;" />
+          <div class="form-textarea form-group field-desc">
+            <label for="desc" class="form-textarea-label">Описание</label>
+            <textarea type="textarea" class="form-control" name="desc" access="false" maxlength="1000" id="desc">{{ task.desc }}</textarea>
+          </div>
+          <hr style="width: 90%;" />
+          <div class="form-select form-group field-status">
+            <label for="status" class="form-select-label">Статус</label>
+            <select class="form-control" name="status" id="status" required="required" aria-required="true">
+              <option value="created" {% if task.status == 'created' %}selected="true"{% endif %} id="status-0">Создана</option>
+              <option value="received" {% if task.status == 'received' %}selected="true"{% endif %} id="status-1">Получена</option>
+              <option value="done" {% if task.status == 'done' %}selected="true"{% endif %} id="status-2">Закончена</option>
+              <option value="deleted" {% if task.status == 'deleted' %}selected="true"{% endif %} id="status-3">Удалена</option>
+            </select>
+          </div>
+          <hr style="width: 90%;" />
+          <div class="form-select form-group field-receiver">
+            <label for="receiver" class="form-select-label">Исполнитель</label>
+            <select class="form-control" name="receiver" id="receiver" required="required" aria-required="true">
+              {% for worker in workers %}
+                <option value="{{ worker.id }}" id="{{ worker.id }}">{{ worker }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <hr style="width: 90%;" />
+          <div class="form-date form-group field-due_date">
+            <label for="due_date" class="form-date-label">Дедлайн</label>
+            <input type="date" class="form-control" name="due_date" value="{{ task.due_date|date:'Y-m-d' }}" access="false" id="due_date" required="required" aria-required="true" />
+          </div>
+        </fieldset>
+        <input class="form-submit" type="submit" value="Сохранить" />
+      </form>
     {% endif %}
-</body>
+  </body>
 </html>

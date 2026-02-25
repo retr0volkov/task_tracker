@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+      }
+      body > div {
+        padding: 2rem;
+      }
+      .top {
+        width: 100%;
+        padding: 1rem;
+        background-color: #ddf;
+        font-size: 1.5rem;
+        line-height: 1.75rem;
+        display: inline-block;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+      .item {
+        border-radius: 1rem;
+        border-width: 2px;
+        border-color: #111;
+        background-color: #ddd;
+      }
+      .title {
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+        margin: 0;
+        margin-top: -1rem;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+      .title > a {
+        font-size: 1.5rem;
+        line-height: 1.75rem;
+        font-weight: 600;
+        margin: 0;
+      }
+      .desc {
+        padding: 0.5rem;
+        margin: 0;
+      }
+      .desc > p {
+        text-align: justify;
+        margin: 0;
+      }
+      .worker {
+        margin: 0;
+        padding: 0.5rem;
+      }
+      .worker > p {
+        margin: 0;
+        font-weight: 600;
+      }
+      .due {
+        margin: 0;
+        padding: 0.5rem;
+        padding-bottom: 1rem;
+      }
+      .due > p {
+        margin: 0;
+      }
+      .form {
+        border-radius: 1rem;
+        background-color: #ddf;
+        width: 20rem;
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        padding-top: 0.5rem;
+        padding-bottom: 1rem;
+      }
+      fieldset {
+        border: 0;
+        width: auto;
+      }
+      .form-group {
+        display: flex;
+        justify-content: space-between;
+      }
+      .form-required {
+        color: #f44;
+        font-weight: 600;
+      }
+      .form-submit {
+        display: block;
+        width: 50%;
+        height: 2rem;
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+        margin-right: auto;
+        margin-left: auto;
+      }
+      .form-textarea-label {
+        align-self: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    {% if worker %}
+      <header class="top">
+        <div style="display: inline-flex;">
+          <a href="{% url 'tracker:worker-list' %}">Список всех работников</a>
+        </div>
+        <p>{{ worker }}</p>
+      </header>
+      <div class="grid">
+        {% if worker.task_set %}
+          {% for task in worker.task_set.all %}
+            {% if task.status != 'deleted' %}
+              <div class="item">
+                <div class="title"
+                  style="background-color:{% if task.status == 'created' %}
+                  #faa
+                  {% elif task.status == 'received' %}
+                  #ffa
+                  {% else %}
+                  #afa
+                  {% endif %};">
+                  <a href="{% url 'tracker:task-detail' task.id %}">{{ task.title }}</a>
+                </div>
+                <div class="desc">
+                  <p>{{ task.desc }}</p>
+                </div>
+                <hr style="width: 90%;" />
+                <div class="worker">
+                  <p>
+                    &#128119; Исполнитель: <a href="{% url 'tracker:worker-detail' task.receiver.id %}">{{ task.receiver }}</a>
+                  </p>
+                </div>
+                <hr style="width: 90%;" />
+                <div class="due">
+                  <p>&#128197; Срок: {{ task.due_date }}</p>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+
+        <form action="{% url 'tracker:new-task' %}" class="form item" method="post">
+          {% csrf_token %}
+          <fieldset class="fieldset">
+            <div class="form-text form-group field-title">
+              <label for="title" class="form-text-label">Название<span class="form-required">*</span></label>
+              <input type="text" class="form-control" value="{{ task.title }}" name="title" access="false" maxlength="200" id="title" required="required" aria-required="true" />
+            </div>
+            <hr style="width: 90%;" />
+            <div class="form-textarea form-group field-desc">
+              <label for="desc" class="form-textarea-label">Описание</label>
+              <textarea type="textarea" class="form-control" name="desc" access="false" maxlength="1000" id="desc">{{ task.desc }}</textarea>
+            </div>
+            <hr style="width: 90%;" />
+            <div class="form-select form-group field-status">
+              <label for="status" class="form-select-label">Статус</label>
+              <select class="form-control" name="status" id="status" required="required" aria-required="true">
+                <option value="created" selected="true" id="status-0">Создана</option>
+                <option value="received" id="status-1">Получена</option>
+                <option value="done" id="status-2">Закончена</option>
+                <option value="deleted" id="status-3">Удалена</option>
+              </select>
+            </div>
+            <hr style="width: 90%;" />
+            <div class="form-select form-group field-receiver">
+              <label for="receiver" class="form-select-label">Исполнитель</label>
+              <select class="form-control" name="receiver" id="receiver" required="required" aria-required="true">
+                {% for worker in workers %}
+                  <option value="{{ worker.id }}" id="{{ worker.id }}">{{ worker }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <hr style="width: 90%;" />
+            <div class="form-date form-group field-due_date">
+              <label for="due_date" class="form-date-label">Дедлайн<span class="form-required">*</span></label>
+              <input type="date" class="form-control" name="due_date" value="{{ task.due_date|date:'Y-m-d' }}" access="false" id="due_date" required="required" aria-required="true" />
+            </div>
+          </fieldset>
+          <input class="form-submit" type="submit" value="Сохранить" />
+        </form>
+      </div>
+    {% endif %}
+  </body>
+</html>

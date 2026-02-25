@@ -4,20 +4,15 @@ from . import views
 
 app_name = 'tracker'
 urlpatterns = [
-    # ex: /tasks/
-    path("", views.IndexView.as_view(), name="index"),
-    # ex: /tasks/1
-    path("<int:pk>/", views.TaskView.as_view(), name="detail"),
-    # ex: /tasks/filter/worker/1
-    path("filter/worker/<int:worker_id>/", views.FilteredWorkerView.as_view(), name="filter-worker"),
-    # ex: /tasks/filter/due/3/2
-    path("filter/due/<int:month>/<int:day>/", views.FilteredDueView.as_view(), name="filter-due-date"),
-    # ex: /tasks/worker
-    path('worker/', views.WorkerView.as_view(), name='workers'),
-    # ex: /tasks/worker/new
-    path('worker/new/', views.new_worker, name='new-worker'),
-    # ex: /tasks/worker/1/new_task
-    path('worker/<int:worker_id>/new_task/', views.new_task, name='new-task')
-    # edit a task
-    # delete a task
+    path("", views.TaskListView.as_view(), name='task-list'),
+    path("<int:pk>/", views.TaskDetailView.as_view(), name='task-detail'),
+    path("worker/", views.WorkerListView.as_view(), name='worker-list'),
+    path("worker/<int:pk>/", views.WorkerDetailView.as_view(), name='worker-detail'),
+    path("new/", views.newTaskApi, name='new-task'),
+    path("edit/<int:task_id>/", views.editTaskApi, name='edit-task'),
+    path("delete/<int:task_id>/", views.deleteTaskApi, name='delete-task'),
+    path("worker/new/", views.newWorkerApi, name='new-worker'),
+    path("worker/edit/<int:worker_id>/", views.editWorkerApi, name='edit-worker'),
+    path("worker/delete/<int:worker_id>/", views.deleteWorkerApi, name='delete-worker'),
+    path("<int:day>/<int:month>/", views.FilterDateView.as_view(), name='task-filter-date')
 ]
