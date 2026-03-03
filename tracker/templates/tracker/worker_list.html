@@ -1,81 +1,14 @@
 <!DOCTYPE html>
+{% load tailwind_cli %}
 <html>
   <head>
-    <style>
-      body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-      }
-      body > div {
-        padding: 2rem;
-      }
-      .top {
-        width: 100%;
-        padding: 1rem;
-        background-color: #ddf;
-        font-size: 1.5rem;
-        line-height: 1.75rem;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(8, minmax(0, 1fr));
-        gap: 0.5rem;
-      }
-      .item {
-        border-radius: 1rem;
-        border-width: 2px;
-        border-color: #111;
-        background-color: #ddd;
-      }
-      .worker {
-        margin: 0;
-        padding: 0.5rem;
-        display: flex;
-        justify-content: space-between;
-      }
-      .worker > p {
-        margin: 0;
-        font-weight: 600;
-      }
-      .form {
-        border-radius: 1rem;
-        background-color: #ddf;
-        width: 20rem;
-        font-size: 1.125rem;
-        line-height: 1.75rem;
-        padding-top: 0.5rem;
-        padding-bottom: 1rem;
-      }
-      fieldset {
-        border: 0;
-        width: auto;
-      }
-      .form-group {
-        display: flex;
-        justify-content: space-between;
-      }
-      .form-required {
-        color: #f44;
-        font-weight: 600;
-      }
-      .form-submit {
-        display: block;
-        width: 50%;
-        height: 2rem;
-        font-size: 1.25rem;
-        line-height: 1.75rem;
-        margin-right: auto;
-        margin-left: auto;
-      }
-      .form-textarea-label {
-        align-self: center;
-      }
-    </style>
+    {% tailwind_css %}
   </head>
 
   <body>
     <header class="top">
-      <div style="display: inline-flex;">
-        <a href="{% url 'tracker:task-list' %}">Список всех задач</a>
+      <div class="top-0 sticky h-14 bg-blue-300 inline-flex w-full items-center p-4">
+        <a class="text-xl rounded-sm border px-2" href="{% url 'tracker:task-list' %}">Список всех задач</a>
       </div>
     </header>
     <div class="grid">

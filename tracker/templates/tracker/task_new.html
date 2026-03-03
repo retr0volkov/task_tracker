@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% load tailwind_cli %}
+<html>
+  <head>
+    {% tailwind_css %}
+  </head>
+
+  <body class="w-full h-screen flex items-center">
+    <form action="{% url 'tracker:new-task' %}" class="w-xl mx-auto" method="post" enctype="multipart/form-data">
+      <p class="text-3xl mb-10 text-center w-full">Новая задача</p>
+      {% csrf_token %}
+      <fieldset class="grid grid-cols-2 text-xl gap-3">
+        <label for="title" class="">Название<span class="text-red-500">*</span></label>
+        <input type="text" class="border-2 border-neutral-200 px-2 py-1 rounded-lg" name="title" access="false" maxlength="200" id="title" required="required" aria-required="true" />
+        
+        <label for="desc" class="">Описание</label>
+        <textarea type="textarea" class="border-2 border-neutral-200 px-2 py-1 rounded-lg" name="desc" access="false" maxlength="1000" id="desc">{{ task.desc }}</textarea>
+        
+        <hr class="col-span-2 w-[90%] text-neutral-200 mx-auto" />
+
+        <label for="status" class="">Статус</label>
+        <select class="border-2 border-neutral-200 px-2 py-1 rounded-lg" name="status" id="status" required="required" aria-required="true">
+          {% for stage in stages %}
+            <option value="{{stage.id}}" {% if task.status == stage %}selected="true"{% endif %} id="status-{{forloop.counter}}">{{stage}}</option>
+          {% endfor %}
+        </select>
+
+        <hr class="col-span-2 w-[90%] text-neutral-200 mx-auto" />
+
+        <label for="receiver" class="">Исполнитель</label>
+        <select class="border-2 border-neutral-200 px-2 py-1 rounded-lg" name="receiver" id="receiver" required="required" aria-required="true">
+          {% for worker in workers %}
+            <option value="{{ worker.id }}" id="{{ worker.id }}">{{ worker }}</option>
+          {% endfor %}
+        </select>
+
+        <hr class="col-span-2 w-[90%] text-neutral-200 mx-auto" />
+
+        <label for="due_date" class="">Дедлайн<span class="text-red-500">*</span></label>
+        <input type="date" class="border-2 border-neutral-200 px-2 py-1 rounded-lg" name="due_date" access="false" id="due_date" required="required" aria-required="true" />
+
+        <hr class="col-span-2 w-[90%] text-neutral-200 mx-auto" />
+
+        <label for="file" class="">Файл</label>
+        <input type="file" class="border-2 border-neutral-200 px-2 py-1 rounded-lg" name="file" access="false" multiple="false" id="file"/>
+      </fieldset>
+      <input class="w-full bg-green-200 mt-10 h-16 rounded-2xl text-2xl text-green-950 border border-green-300 shadow-lg cursor-grab" type="submit" value="Сохранить" />
+    </form>
+  </body>
+</html>
