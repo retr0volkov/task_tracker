@@ -6,13 +6,11 @@
   </head>
 
   <body>
-    {% if worker %}
+    {% if user %}
       <header class="top">
         <div class="top-0 sticky h-14 bg-blue-300 inline-flex w-full items-center p-4 gap-6">
-          <p class="text-2xl">{{ worker }}</p>
-          <a class="text-xl rounded-sm border px-2" href="{% url 'tracker:worker-list' %}">Список всех работников</a>
+          <p class="text-xl rounded-sm border px-2">Задачи пользователя: {{ user }}</p>
         </div>
-        
       </header>
       <div class="p-2">
         <div class="flex-row flex gap-2">
@@ -21,14 +19,13 @@
               <div class="w-[20vw]">
                 <div class="w-full flex px-2 flex-row rounded-2xl h-8 text-center text-2xl" style="background-color: {{ stage.color }};">
                   <p class="w-full">{{ stage }}</p>
-                  
                   <form action="{% url 'tracker:delete-stage' stage.id %}">
                     {% csrf_token %}
                     <button {% if stage.task_set.all %}disabled{% endif %} class="cursor-grab disabled:grayscale">❌</button>
                   </form> 
                 </div>
-                {% if worker.task_set.all %}
-                  {% for task in worker.task_set.all %}
+                {% if user.task_set.all %}
+                  {% for task in user.task_set.all %}
                     {% if task.status == stage %}
                       <div class="border rounded-2xl mt-2 py-1 px-2 border-neutral-300 shadow-lg">
                         <div class="text-xl">
@@ -70,7 +67,6 @@
                       </div>
                     {% endif %}
                   {% endfor %}
-                  
                 {% endif %}
                 <form action="">
                   {% csrf_token %}

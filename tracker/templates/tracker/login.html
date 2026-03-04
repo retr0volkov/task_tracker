@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{% load tailwind_cli %}
+<html>
+  <head>
+    {% tailwind_css %}
+  </head>
+
+  <body class="w-full h-screen flex items-center">
+    <form action="{% url 'tracker:login-form' %}" class="w-xl mx-auto" method="post" enctype="multipart/form-data">
+      <p class="text-3xl mb-10 text-center w-full">Войти в аккаунт</p>
+      {% csrf_token %}
+      <fieldset class="grid grid-cols-2 text-xl gap-3">
+        <label for="username" class="">Имя пользователя<span class="text-red-500">*</span></label>
+        <input type="text" class="border-2 border-neutral-200 px-2 py-1 rounded-lg" name="username" access="false" maxlength="200" id="username" required="required" aria-required="true" />
+        
+        <label for="password" class="">Пароль<span class="text-red-500">*</span></label>
+        <input type="password" class="border-2 border-neutral-200 px-2 py-1 rounded-lg" name="password" access="false" maxlength="200" id="password" required="required" aria-required="true" />
+      </fieldset>
+      <input class="w-full bg-green-200 mt-10 h-16 rounded-2xl text-2xl text-green-950 border border-green-300 shadow-lg cursor-grab" type="submit" value="Войти" />
+    </form>
+  </body>
+</html>

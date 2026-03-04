@@ -7,8 +7,9 @@
 
   <body>
     <header>
-      <div class="top-0 sticky h-14 bg-blue-300 inline-flex w-full items-center p-4">
-        <a class="text-xl rounded-sm border px-2" href="{% url 'tracker:worker-list' %}">Список всех работников</a>
+      <div class="top-0 sticky h-14 bg-blue-300 inline-flex w-full items-center p-4 justify-between">
+        <p class="text-xl rounded-sm border px-2">Вы вошли как: {{ user }} {% if user.is_staff %}⭐{% endif %}</p>
+        <a class="text-xl rounded-sm border px-2" href="{% url 'tracker:logout-api' %}">Выйти</a>
       </div>
     </header>
     <div class="p-2">
@@ -19,31 +20,39 @@
               <div class="w-full flex px-2 flex-row rounded-2xl h-8 text-center text-2xl" style="background-color: {{ stage.color }};">
                 <p class="w-full">{{ stage }}</p>
                 
-                <form action="{% url 'tracker:delete-stage' stage.id %}">
-                  {% csrf_token %}
-                  <button {% if stage.task_set.all %}disabled{% endif %} class="cursor-grab disabled:grayscale">❌</button>
-                </form> 
+                {% if user.is_staff %}
+                  <form action="{% url 'tracker:delete-stage' stage.id %}">
+                    {% csrf_token %}
+                    <button {% if stage.task_set.all %}disabled{% endif %} class="cursor-grab disabled:grayscale">❌</button>
+                  </form> 
+                {% endif %}
               </div>
               {% if tasks %}
                 {% for task in tasks %}
                   {% if task.status == stage %}
-                    <div class="border rounded-2xl mt-2 py-1 px-2 border-neutral-300 shadow-lg">
+                    <div class="border rounded-2xl mt-2 py-1 px-2 border-neutral-300 shadow">
                       <div class="text-xl">
-                        <a href="{% url 'tracker:task-detail' task.id %}">{{ task.title }} ✏️</a>
+                        {% if user.is_staff %}
+                          <a href="{% url 'tracker:task-detail' task.id %}">{{ task.title }} ✏️</a>
+                        {% else %}
+                          <p href="{% url 'tracker:task-detail' task.id %}">{{ task.title }}</p>
+                        {% endif %}
                       </div>
                       <div>
                         <p>{{ task.desc|urlizetrunc:30 }}</p>
                       </div>
                       <hr class="w-[90%] mx-auto text-neutral-300 my-1"/>
-                      <div>
-                        <p>
-                          👷 Исполнитель: 
-                          <a class="underline " href="{% url 'tracker:worker-detail' task.receiver.id %}">
-                            {{ task.receiver }}
-                          </a>
-                        </p>
-                      </div>
-                      <hr class="w-[90%] mx-auto text-neutral-300 my-1"/>
+                      {% if user.is_staff %}
+                        <div>
+                          <p>
+                            👷 Исполнитель: 
+                            <a class="underline " href="{% url 'tracker:worker-detail' task.receiver.id %}">
+                              {{ task.receiver }}
+                            </a>
+                          </p>
+                        </div>
+                        <hr class="w-[90%] mx-auto text-neutral-300 my-1"/>
+                      {% endif %}
                       <div>
                         <p>📅 Срок: {{ task.due_date }}</p>
                       </div>
@@ -59,29 +68,62 @@
                           {% csrf_token %}
                           <button {% if forloop.parentloop.first %}disabled{% endif %} class="text-5xl disabled:grayscale cursor-grab">⬅️</button>
                         </form>
+                        {% if task.comment_set.all %}
+                          <details class="w-full items-center border border-neutral-300 group rounded-lg mt-1">
+                            <summary class="text-center mt-1 group-open:border-b border-neutral-300 text-2xl cursor-default">
+                              Комментарии
+                            </summary>
+                            <div class="w-full p-2">
+                              {% for comment in task.comment_set.all %}
+                                <div class="w-full flex">
+                                  <p class="border w-6 h-6 text-center font-mono bg-green-400 border-green-500 rounded-full mr-2">{{comment}}</p>
+                                  <p class="text-neutral-700 font-bold">{{comment.author}}:&nbsp;</p>
+                                  <p class="text-neutral-500">{{comment.content}}</p>
+                                </div>
+                                
+                                <hr class="w-[90%] mx-auto text-neutral-300 my-2"/>
+                              {% endfor %}
+                              <form action="{% url 'tracker:post-comment' task.id %}" method="post" class="w-full flex justify-between items-center">
+                                {% csrf_token %}
+                                <input type="text" name="content" placeholder="Написать комментарий..." class=""/>
+                                <button class="text-2xl cursor-grab -mt-1">📨</button>
+                              </form>
+                            </div>
+                          </details>
+                        {% else %}
+                          <form action="{% url 'tracker:post-comment' task.id %}" method="post" class="w-full flex justify-between items-center">
+                            {% csrf_token %}
+                            <input type="text" name="content" placeholder="Написать комментарий..." class=""/>
+                            <button class="text-2xl cursor-grab -mt-1">📨</button>
+                          </form>
+                        {% endif %}
+                          
                         <form action="{% url 'tracker:advance-task' task.id %}">
                           {% csrf_token %}
-                          <button {% if forloop.parentloop.last %}disabled{% endif %} class="text-5xl disabled:grayscale cursor-grab">➡️</button>
+                          <button {% if forloop.parentloop.last %}disabled{% endif %} class="text-5xl disabled:grayscale cursor cursor-grab">➡️</button>
                         </form>
                       </div>
                     </div>
                   {% endif %}
                 {% endfor %}
-                
               {% endif %}
-              <form action="{% url 'tracker:create-task' %}">
-                {% csrf_token %}
-                <button  class="w-full rounded-2xl bg-green-100 border border-green-200 mt-2 shadow-lg cursor-grab text-xl">➕</button>
-              </form> 
+              {% if user.is_staff %}
+                <form action="{% url 'tracker:create-task' %}">
+                  {% csrf_token %}
+                  <button  class="w-full rounded-2xl bg-green-100 border border-green-200 mt-2 shadow-lg cursor-grab text-xl">➕</button>
+                </form> 
+              {% endif %}
             </div>
           {% endfor %}
         {% endif %}
-        <form class="w-[20vw] flex flex-row rounded-2xl h-8 text-center text-2xl border px-2 border-neutral-100" action="{% url 'tracker:new-stage' %}" method="post">
-          {% csrf_token %}
-          <input name="title" required class="w-full text-center" type="text" placeholder="Название"/>
-          <input name="color" value="#ff0000" class="w-8 h-full" type="color"/>
-          <button class="cursor-grab -mt-1 -mr-1">➕</button>
-        </form>
+        {% if user.is_staff %}
+          <form class="w-[20vw] flex flex-row rounded-2xl h-8 text-center text-2xl border px-2 border-neutral-100" action="{% url 'tracker:new-stage' %}" method="post">
+            {% csrf_token %}
+            <input name="title" required class="w-full text-center" type="text" placeholder="Название"/>
+            <input name="color" value="#ff0000" class="w-8 h-full" type="color"/>
+            <button class="cursor-grab -mt-1 -mr-1">➕</button>
+          </form>
+        {% endif %}
       </div>
     </div>
   </body>
