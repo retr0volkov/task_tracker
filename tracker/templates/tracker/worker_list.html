@@ -740,18 +740,46 @@
     </style>
   </head>
 
-  <body class="w-full h-screen flex items-center">
-    <form action="{% url 'tracker:login-form' %}" class="w-xl mx-auto" method="post" enctype="multipart/form-data">
-      <p class="text-3xl mb-10 text-center w-full">Войти в аккаунт</p>
-      {% csrf_token %}
-      <fieldset class="grid grid-cols-2 text-xl gap-3">
-        <label for="username" class="">Имя пользователя<span class="text-red-500">*</span></label>
-        <input type="text" class="border-2 border-neutral-200 px-2 py-1 rounded-lg" name="username" access="false" maxlength="200" id="username" required="required" aria-required="true" />
+  <body>
+    <header>
+      <div class="top-0 sticky h-14 bg-blue-300 inline-flex w-full items-center p-4 gap-6">
+        <div class="inline-flex gap-2">
+          <p class="text-xl rounded-sm border px-2">Список пользователей</p>
+          <a href="{% url 'tracker:task-list' %}" class="text-xl rounded-sm border px-2">Все задачи</a>
+        </div>
+      </div>
+    </header>
+    <div class="w-full max-h-[100vh-3.5rem] flex items-center p-5">
+      <div class="w-xl mx-auto">
+        {% for worker in workers %}
+          <div class="w-full bg-green-200 rounded-2xl text-2xl text-green-950 border border-green-300 shadow-lg mb-5">
+            <a href="{% url 'tracker:worker-detail' worker.id %}">
+              <p class="w-full text-center underline">
+                {{worker}}
+              </p>
+            </a>
+            <div class="w-full grid grid-cols-4 gap-2 p-2">
+              <form class="col-span-3 gap-2 grid grid-cols-3" method="post" action="{% url 'tracker:worker-cpwd' worker %}">
+                {% csrf_token %}
+                <input class="border-2 border-yellow-300 text-yellow-800 px-2 py-1 rounded-lg col-span-2" type="password" name="password" />
+                <input class="border-2 border-yellow-300 text-yellow-800 px-2 py-1 rounded-lg cursor-grab" type="submit" value="Сбросить&NewLine;пароль" />
+              </form>
+              <form method="post" action="{% url 'tracker:worker-delete' worker %}">
+                {% csrf_token %}
+                <input class="border-2 border-red-300 text-red-800 px-2 py-1 rounded-lg w-full h-full cursor-grab" type="submit" value="Удалить"/>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
         
-        <label for="password" class="">Пароль<span class="text-red-500">*</span></label>
-        <input type="password" class="border-2 border-neutral-200 px-2 py-1 rounded-lg" name="password" access="false" maxlength="200" id="password" required="required" aria-required="true" />
-      </fieldset>
-      <input class="w-full bg-green-200 mt-10 h-16 rounded-2xl text-2xl text-green-950 border border-green-300 shadow-lg cursor-grab" type="submit" value="Войти" />
-    </form>
+        <a href="{% url 'tracker:worker-new' %}">
+          <div class="flex items-center mt-5 w-full bg-green-200 h-16 rounded-2xl text-2xl text-green-950 border border-green-300 shadow-lg cursor-grab">
+            <p class="w-full text-center">
+              Добавить пользователя
+            </p>
+          </div>
+        </a>
+      </div>
+    </div>
   </body>
 </html>

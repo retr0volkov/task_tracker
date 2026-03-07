@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -22,7 +22,7 @@ class TaskListView(LoginRequiredMixin, generic.ListView):
     
     def get_queryset(self):
         if (self.request.user.is_staff):
-            return get_list_or_404(Task)
+            return Task.objects.all()
         else:
             tasks = Task.objects.filter(receiver=self.request.user)
             if tasks:
@@ -48,10 +48,11 @@ class TaskDetailView(StaffRequiredMixin, generic.DetailView):
 #region task api
 
 @staff_member_required
-def newTask(request):
+def newTask(request, stage_id):
     context = {
         'workers': get_user_model().objects.all(),
         'stages': Stage.objects.all(),
+        'stage_id': stage_id
     }
     return render(request, 'tracker/task_new.html', context)
 
@@ -133,7 +134,18 @@ def commentApi(request, task_id):
     task.save()
     return HttpResponseRedirect(reverse("tracker:task-list"))
 
+@staff_member_required
+def deleteTaskApi(request, task_id):
+    task = get_object_or_404(Task, pk=task_id)
+    task.delete()
+    return redirect('tracker:task-list')
+
 #endregion
+
+class WorkerListView(StaffRequiredMixin, generic.ListView):
+    model = get_user_model()
+    context_object_name = 'workers'
+    template_name = 'tracker/worker_list.html'
 
 class WorkerDetailView(StaffRequiredMixin, generic.DetailView):
     model = get_user_model()
@@ -162,7 +174,31 @@ def loginApi(request):
 def logoutApi(request):
     logout(request)
     return redirect('tracker:login-form')
-    
+
+@staff_member_required
+def newUserApi(request):
+    if (request.method == "POST"):
+        User = get_user_model()
+        user = User.objects.create_user(request.POST.get('username'), '', request.POST.get('password'))
+        user.save()
+        return redirect('tracker:worker-list')
+    return render(request, 'tracker/new_user.html')
+
+@staff_member_required
+def changePasswordApi(request, user):
+    User = get_user_model()
+    u = User.objects.get(username=user)
+    u.set_password(request.POST['password'])
+    u.save()
+    if request.user == u:
+        update_session_auth_hash(request, u)
+    return redirect('tracker:worker-list')
+
+@staff_member_required
+def deleteUserApi(request, user):
+    User = get_user_model()
+    User.objects.get(username=user).delete()
+    return redirect('tracker:worker-list')
 #endregion
 
 class FilterDateView(generic.ListView):
